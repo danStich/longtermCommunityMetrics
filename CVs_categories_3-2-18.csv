@@ -1,0 +1,157 @@
+Site,variable,CV,DensBiom,LengthArea,CommunitySt,MultipassFirstPass
+21013,CDensArea,0.130104452,Density,Area,Community,Multipass
+Biscuit,CDensArea,0.263374804,Density,Area,Community,Multipass
+Buck,CDensArea,0.746224881,Density,Area,Community,Multipass
+DeerShanty,CDensArea,0.450464858,Density,Area,Community,Multipass
+Durgin,CDensArea,0.249387908,Density,Area,Community,Multipass
+Fly,CDensArea,0.012279764,Density,Area,Community,Multipass
+Moss,CDensArea,0.556620572,Density,Area,Community,Multipass
+NewHill,CDensArea,0.193505662,Density,Area,Community,Multipass
+Oasis,CDensArea,0.17329583,Density,Area,Community,Multipass
+Seventh,CDensArea,0.339245871,Density,Area,Community,Multipass
+Slide,CDensArea,0.497393784,Density,Area,Community,Multipass
+Tisons,CDensArea,0.628793857,Density,Area,Community,Multipass
+Winnisook,CDensArea,0.790954702,Density,Area,Community,Multipass
+21013,CDensLength,0.128638859,Density,Length,Community,Multipass
+Biscuit,CDensLength,0.258925299,Density,Length,Community,Multipass
+Buck,CDensLength,0.63075807,Density,Length,Community,Multipass
+DeerShanty,CDensLength,0.410224883,Density,Length,Community,Multipass
+Durgin,CDensLength,0.159908382,Density,Length,Community,Multipass
+Fly,CDensLength,0.09382668,Density,Length,Community,Multipass
+Moss,CDensLength,0.410647128,Density,Length,Community,Multipass
+NewHill,CDensLength,0.183029915,Density,Length,Community,Multipass
+Oasis,CDensLength,0.160789746,Density,Length,Community,Multipass
+Seventh,CDensLength,0.358321084,Density,Length,Community,Multipass
+Slide,CDensLength,0.315282693,Density,Length,Community,Multipass
+Tisons,CDensLength,0.641355187,Density,Length,Community,Multipass
+Winnisook,CDensLength,0.668791683,Density,Length,Community,Multipass
+21013,CBiomArea,0.07675073,Biomass,Area,Community,Multipass
+Biscuit,CBiomArea,0.25274964,Biomass,Area,Community,Multipass
+Buck,CBiomArea,0.626890474,Biomass,Area,Community,Multipass
+DeerShanty,CBiomArea,0.25708679,Biomass,Area,Community,Multipass
+Durgin,CBiomArea,0.173826645,Biomass,Area,Community,Multipass
+Fly,CBiomArea,0.136977086,Biomass,Area,Community,Multipass
+Moss,CBiomArea,0.123082152,Biomass,Area,Community,Multipass
+NewHill,CBiomArea,0.343959368,Biomass,Area,Community,Multipass
+Oasis,CBiomArea,0.126391274,Biomass,Area,Community,Multipass
+Seventh,CBiomArea,0.218971824,Biomass,Area,Community,Multipass
+Slide,CBiomArea,0.559476399,Biomass,Area,Community,Multipass
+Tisons,CBiomArea,0.512251807,Biomass,Area,Community,Multipass
+Winnisook,CBiomArea,0.845607561,Biomass,Area,Community,Multipass
+21013,CBiomLength,0.071979759,Biomass,Length,Community,Multipass
+Biscuit,CBiomLength,0.19136292,Biomass,Length,Community,Multipass
+Buck,CBiomLength,0.50579969,Biomass,Length,Community,Multipass
+DeerShanty,CBiomLength,0.19054614,Biomass,Length,Community,Multipass
+Durgin,CBiomLength,0.122393218,Biomass,Length,Community,Multipass
+Fly,CBiomLength,0.198994805,Biomass,Length,Community,Multipass
+Moss,CBiomLength,0.041583772,Biomass,Length,Community,Multipass
+NewHill,CBiomLength,0.286322985,Biomass,Length,Community,Multipass
+Oasis,CBiomLength,0.144054011,Biomass,Length,Community,Multipass
+Seventh,CBiomLength,0.268158742,Biomass,Length,Community,Multipass
+Slide,CBiomLength,0.284982274,Biomass,Length,Community,Multipass
+Tisons,CBiomLength,0.511739496,Biomass,Length,Community,Multipass
+Winnisook,CBiomLength,0.722313586,Biomass,Length,Community,Multipass
+21013,StDensArea,0.20984732,Density,Area,Brook trout,Multipass
+Biscuit,StDensArea,0.409548847,Density,Area,Brook trout,Multipass
+Buck,StDensArea,0.693489422,Density,Area,Brook trout,Multipass
+DeerShanty,StDensArea,0.435402856,Density,Area,Brook trout,Multipass
+Durgin,StDensArea,0.198627811,Density,Area,Brook trout,Multipass
+Fly,StDensArea,0.353381718,Density,Area,Brook trout,Multipass
+Moss,StDensArea,0.29319571,Density,Area,Brook trout,Multipass
+NewHill,StDensArea,0.214848348,Density,Area,Brook trout,Multipass
+Oasis,StDensArea,0.270142954,Density,Area,Brook trout,Multipass
+Seventh,StDensArea,0.434118886,Density,Area,Brook trout,Multipass
+Slide,StDensArea,0.694931328,Density,Area,Brook trout,Multipass
+Tisons,StDensArea,0.535997455,Density,Area,Brook trout,Multipass
+Winnisook,StDensArea,0.790954702,Density,Area,Brook trout,Multipass
+21013,StDensLength,0.176889976,Density,Length,Brook trout,Multipass
+Biscuit,StDensLength,0.312845384,Density,Length,Brook trout,Multipass
+Buck,StDensLength,0.576158204,Density,Length,Brook trout,Multipass
+DeerShanty,StDensLength,0.411488444,Density,Length,Brook trout,Multipass
+Durgin,StDensLength,0.322514013,Density,Length,Brook trout,Multipass
+Fly,StDensLength,0.337924237,Density,Length,Brook trout,Multipass
+Moss,StDensLength,0.222335078,Density,Length,Brook trout,Multipass
+NewHill,StDensLength,0.243076715,Density,Length,Brook trout,Multipass
+Oasis,StDensLength,0.232952189,Density,Length,Brook trout,Multipass
+Seventh,StDensLength,0.321228945,Density,Length,Brook trout,Multipass
+Slide,StDensLength,0.384355393,Density,Length,Brook trout,Multipass
+Tisons,StDensLength,0.540781822,Density,Length,Brook trout,Multipass
+Winnisook,StDensLength,0.668791683,Density,Length,Brook trout,Multipass
+21013,StBiomArea,0.277225058,Biomass,Area,Brook trout,Multipass
+Biscuit,StBiomArea,0.283634158,Biomass,Area,Brook trout,Multipass
+Buck,StBiomArea,0.618605359,Biomass,Area,Brook trout,Multipass
+DeerShanty,StBiomArea,0.128108844,Biomass,Area,Brook trout,Multipass
+Durgin,StBiomArea,0.412796673,Biomass,Area,Brook trout,Multipass
+Fly,StBiomArea,0.420467506,Biomass,Area,Brook trout,Multipass
+Moss,StBiomArea,0.161135952,Biomass,Area,Brook trout,Multipass
+NewHill,StBiomArea,0.124456126,Biomass,Area,Brook trout,Multipass
+Oasis,StBiomArea,0.095935707,Biomass,Area,Brook trout,Multipass
+Seventh,StBiomArea,0.399804031,Biomass,Area,Brook trout,Multipass
+Slide,StBiomArea,0.682819123,Biomass,Area,Brook trout,Multipass
+Tisons,StBiomArea,0.479865336,Biomass,Area,Brook trout,Multipass
+Winnisook,StBiomArea,0.845607561,Biomass,Area,Brook trout,Multipass
+21013,StBiomLength,0.265523611,Biomass,Length,Brook trout,Multipass
+Biscuit,StBiomLength,0.215617444,Biomass,Length,Brook trout,Multipass
+Buck,StBiomLength,0.49740958,Biomass,Length,Brook trout,Multipass
+DeerShanty,StBiomLength,0.137368995,Biomass,Length,Brook trout,Multipass
+Durgin,StBiomLength,0.54944451,Biomass,Length,Brook trout,Multipass
+Fly,StBiomLength,0.392362951,Biomass,Length,Brook trout,Multipass
+Moss,StBiomLength,0.155529963,Biomass,Length,Brook trout,Multipass
+NewHill,StBiomLength,0.142488601,Biomass,Length,Brook trout,Multipass
+Oasis,StBiomLength,0.073643674,Biomass,Length,Brook trout,Multipass
+Seventh,StBiomLength,0.433857245,Biomass,Length,Brook trout,Multipass
+Slide,StBiomLength,0.347168352,Biomass,Length,Brook trout,Multipass
+Tisons,StBiomLength,0.474554632,Biomass,Length,Brook trout,Multipass
+Winnisook,StBiomLength,0.722313586,Biomass,Length,Brook trout,Multipass
+21013,AllSpFPDensArea,0.116879063,Density,Area,Community,Firstpass
+Biscuit,AllSpFPDensArea,0.283193943,Density,Area,Community,Firstpass
+Buck,AllSpFPDensArea,0.668639663,Density,Area,Community,Firstpass
+DeerShanty,AllSpFPDensArea,0.454098459,Density,Area,Community,Firstpass
+Durgin,AllSpFPDensArea,0.194115395,Density,Area,Community,Firstpass
+Fly,AllSpFPDensArea,0.132324576,Density,Area,Community,Firstpass
+Moss,AllSpFPDensArea,0.424777864,Density,Area,Community,Firstpass
+NewHill,AllSpFPDensArea,0.370110487,Density,Area,Community,Firstpass
+Oasis,AllSpFPDensArea,0.231905892,Density,Area,Community,Firstpass
+Seventh,AllSpFPDensArea,0.42200804,Density,Area,Community,Firstpass
+Slide,AllSpFPDensArea,0.63819368,Density,Area,Community,Firstpass
+Tisons,AllSpFPDensArea,0.574331984,Density,Area,Community,Firstpass
+Winnisook,AllSpFPDensArea,0.636737159,Density,Area,Community,Firstpass
+21013,AllSpFPDensLength,0.142618622,Density,Length,Community,Firstpass
+Biscuit,AllSpFPDensLength,0.271778509,Density,Length,Community,Firstpass
+Buck,AllSpFPDensLength,0.551734462,Density,Length,Community,Firstpass
+DeerShanty,AllSpFPDensLength,0.404242428,Density,Length,Community,Firstpass
+Durgin,AllSpFPDensLength,0.108018126,Density,Length,Community,Firstpass
+Fly,AllSpFPDensLength,0.094329798,Density,Length,Community,Firstpass
+Moss,AllSpFPDensLength,0.32885679,Density,Length,Community,Firstpass
+NewHill,AllSpFPDensLength,0.400146802,Density,Length,Community,Firstpass
+Oasis,AllSpFPDensLength,0.227920246,Density,Length,Community,Firstpass
+Seventh,AllSpFPDensLength,0.434438648,Density,Length,Community,Firstpass
+Slide,AllSpFPDensLength,0.396081947,Density,Length,Community,Firstpass
+Tisons,AllSpFPDensLength,0.589610939,Density,Length,Community,Firstpass
+Winnisook,AllSpFPDensLength,0.528066426,Density,Length,Community,Firstpass
+21013,AllSpFPBiomArea,0.362899071,Biomass,Area,Community,Firstpass
+Biscuit,AllSpFPBiomArea,0.318383221,Biomass,Area,Community,Firstpass
+Buck,AllSpFPBiomArea,0.719741603,Biomass,Area,Community,Firstpass
+DeerShanty,AllSpFPBiomArea,0.449499808,Biomass,Area,Community,Firstpass
+Durgin,AllSpFPBiomArea,0.245552268,Biomass,Area,Community,Firstpass
+Fly,AllSpFPBiomArea,0.144206758,Biomass,Area,Community,Firstpass
+Moss,AllSpFPBiomArea,0.024645571,Biomass,Area,Community,Firstpass
+NewHill,AllSpFPBiomArea,0.080953327,Biomass,Area,Community,Firstpass
+Oasis,AllSpFPBiomArea,0.228040581,Biomass,Area,Community,Firstpass
+Seventh,AllSpFPBiomArea,0.08050698,Biomass,Area,Community,Firstpass
+Slide,AllSpFPBiomArea,0.788529751,Biomass,Area,Community,Firstpass
+Tisons,AllSpFPBiomArea,0.372301741,Biomass,Area,Community,Firstpass
+Winnisook,AllSpFPBiomArea,0.719833289,Biomass,Area,Community,Firstpass
+21013,AllSpFPBiomLength,0.372535881,Biomass,Length,Community,Firstpass
+Biscuit,AllSpFPBiomLength,0.246405563,Biomass,Length,Community,Firstpass
+Buck,AllSpFPBiomLength,0.608196248,Biomass,Length,Community,Firstpass
+DeerShanty,AllSpFPBiomLength,0.361285672,Biomass,Length,Community,Firstpass
+Durgin,AllSpFPBiomLength,0.1406326,Biomass,Length,Community,Firstpass
+Fly,AllSpFPBiomLength,0.15329662,Biomass,Length,Community,Firstpass
+Moss,AllSpFPBiomLength,0.17627466,Biomass,Length,Community,Firstpass
+NewHill,AllSpFPBiomLength,0.116325056,Biomass,Length,Community,Firstpass
+Oasis,AllSpFPBiomLength,0.239308832,Biomass,Length,Community,Firstpass
+Seventh,AllSpFPBiomLength,0.170384202,Biomass,Length,Community,Firstpass
+Slide,AllSpFPBiomLength,0.497059033,Biomass,Length,Community,Firstpass
+Tisons,AllSpFPBiomLength,0.384119821,Biomass,Length,Community,Firstpass
+Winnisook,AllSpFPBiomLength,0.606706539,Biomass,Length,Community,Firstpass
