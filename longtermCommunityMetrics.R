@@ -96,7 +96,8 @@
   } # i
 
 # Calculate the coefficient of variation (cv) for each dataframe in the list
-# and add it as a column
+# and add it as a column. Probably a better way to do this with
+# mapply or lapply functions
   for(i in 1:length(out)){
     out[[i]]$cv = out[[i]][,4]/out[[i]][,3]
     names(out[[i]])[names(out[[i]])=='cv'] <- paste0(
@@ -160,7 +161,7 @@ library(lme4)
   model1 <- lmer(CDensArea ~ year + (1|Site), data=TempVar)
   summary(model1)
 
-### Should probablt log transform the response here because
+### Should probably log transform the response here because
 ### it has mass near zero, but is positive definitive. This
 ### could result in prediction intervals that include negative
 ### numbers.
