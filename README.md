@@ -10,3 +10,5 @@ Code for analysis of temporal variability in long-term monitoring of stream fish
 -There is a list of necessary package at the start. All need to be installed prior to running
 
 -Press `<alt> + o` to fold the code and show main and subheadings
+ 
+-You will need to set a working directory using `setwd()` in the `Data prep` section
