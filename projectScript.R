@@ -62,12 +62,15 @@ lapply(libraries, require, character.only = TRUE)
     
     return(datac)
   }
+
+
 # Data prep -----
 
 # ** STOP **
 # Set a working directory if not in an R project or
 # if you haven't set one yet.
   #setwd("C:/NYBackup/Fish/Neversink&ADK_TempVariability_2016")
+
 
 # . Data manipulation -----
 # Read in the data
@@ -122,6 +125,7 @@ lapply(libraries, require, character.only = TRUE)
       streamdata[ , c(1:3,
                       which(names(streamdata) %in% newnames)
                       )])
+  
   
 # . Summary statistics -----
 # Use the summarySE function sourced in 'functions.R' to 
@@ -191,27 +195,23 @@ lapply(libraries, require, character.only = TRUE)
 # graphing (put all data in one column)
   CVs <- reshape::melt(CVshort, id=c("Site"))
 
-  
 # Boxplot showing log-transformed CVs by metric across sites
   par(mar=c(12,5,1,1))
   boxplot(log(value) ~ variable,
           data = CVs,
           ylab = "Coefficient of variation across sites", las=2)
 
-  
   # Boxplot showing untransformed CVs by metric across sites
     par(mar=c(12,5,1,1))
     boxplot(value ~ variable,
             data = CVs, ylim=c(0,1),
             ylab = "Coefficient of variation across sites", las=2)  
     
-    
   # Boxplot showing CVs by site across metrics
     boxplot(value ~ Site,
             data = CVs,
             ylab = "Coefficient of variation", las=2)
   
-
 # Produces summary statistics for the CVs for each metric 
 # across sites
   Sum_CVs <- summarySE(CVs,
@@ -229,17 +229,15 @@ lapply(libraries, require, character.only = TRUE)
     theme(panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(), #remove gridlines
           axis.text.x = element_text(angle = 30, hjust = 1)) #rotate text angle
+
+  
 # Mixed model to analyze CV -----
 
 # . Data read and screening -----
-  #Read in new CSV file with 4 factor columns added to
-  #the exported file above, note that this file excludes richness
+  # Read in new CSV file with 4 factor columns added to
+  # the exported file above, note that this file excludes richness
   CVs_Cat <- read.csv("CVs_categories_3-2-18.csv")
-  ### DSS: would be good to add these as part of the dataPrep script
-  ### so the whole process is contained in code. That way, one file
-  ### can feed directly into the next if the underlying data change
-  
-  
+
   #Create series of boxplots looking at CVs across the 4 factors
   par(mfrow = c(2, 2), mar = c(3, 4, 1, 1))
   boxplot(CV ~ DensBiom,data = CVs_Cat, ylim=c(0,1), ylab = "Coefficient of variation (CV)")
@@ -250,31 +248,33 @@ lapply(libraries, require, character.only = TRUE)
   #Histogram of 
   hist(CVs_Cat$CV)
   
+  
 # . Model -----  
-  #Mixed model to assess the effect of 4 factors (types of metrics) on CV
+# Mixed model to assess the effect of 4 factors (types of metrics) on CV
   M1 <- lme(CV ~ DensBiom + LengthArea + CommunitySt + MultipassFirstPass,
             random =~ 1 | Site, data=CVs_Cat)
   summary(M1)
   
+  # Plot residuals versus fitted values to look for heterogeniety (cone shape)
+    E1 <- resid(M1, type = "n")
+    F1 <- fitted(M1)
+    par(mfrow = c(1, 1), mar = c(5, 5, 2, 2), cex.lab = 1.5)
+    plot(x = F1, 
+         y = E1,
+         xlab = "Fitted values",
+         ylab = "Residuals")
+    abline(h = 0, lty = 2, col = 1)
   
-  #Plot residuals versus fitted values to look for heterogeniety (cone shape)
-  E1 <- resid(M1, type = "n")
-  F1 <- fitted(M1)
-  par(mfrow = c(1, 1), mar = c(5, 5, 2, 2), cex.lab = 1.5)
-  plot(x = F1, 
-       y = E1,
-       xlab = "Fitted values",
-       ylab = "Residuals")
-  abline(h = 0, lty = 2, col = 1)
+  # Plot residuals by site, if we had individual boxes way above or below mean 
+  # we would have a problem. If all similar then it means the random effect did its job
+    par(mfrow = c(1, 1), mar = c(5, 5, 2, 2), cex.lab = 1.5)
+    boxplot(E1 ~ Site, data = CVs_Cat, las=2)
+    abline(h = 0)
   
-
-  #Plot residuals by site, if we had individual boxes way above or below mean 
-  #we would have a problem. If all similar then it means the random effect did its job
-  par(mfrow = c(1, 1), mar = c(5, 5, 2, 2), cex.lab = 1.5)
-  boxplot(E1 ~ Site, data = CVs_Cat, las=2)
-  abline(h = 0)
+  
 # Power analysis -----
 
+    
 # . Descriptive statistics for observed data -----
   var='CBiomLength'
 
@@ -317,7 +317,7 @@ lapply(libraries, require, character.only = TRUE)
 ### any object created from the original, as well!
   
 # Number of runs for the simulation
-  nruns = 1000
+  nruns = 10000
     
   
 # . Memory pre-allocation for simulation output -----   
@@ -403,7 +403,8 @@ lapply(libraries, require, character.only = TRUE)
   
 # Close the progress meter
   close(pb)
- 
+
+
 # . Results -----   
 # Gather results into a single dataframe
   res = data.frame(N, d, p)
@@ -491,16 +492,16 @@ lapply(libraries, require, character.only = TRUE)
   	    levels=seq(0,1,.05),
   	    col=rev(gray.colors(21)),             # Could also choose 'grey.colors' or 'topo.colors'. If you want the ramp to go the other way, just delete the 'rev'. Note that you will need to change the 20 in parentheses to match the number of levels that you actually have or want to display.
   	    main = '',                            # I don't like in-figure titles. You can add one, though. You will, however, need to change the 'mar' argument in the call to par above.
-  	    ylim=c(min(im$y), max(im$y)), # Set max and min of y-axis to your data range
+  	    ylim=c(min(im$y), max(im$y)),         # Set max and min of y-axis to your data range
   	    xlim=c(min(im$x), max(im$x)),         # Set max and min of x-axis to your data range
-  	    xlab="Number of samples",              # Change the words in the quotes to change the x-axis label
+  	    xlab="Number of samples",             # Change the words in the quotes to change the x-axis label
   	    cex.lab=1.5,                          # This makes the labels 1.5x larger than default
   	    plot.axes = {                         # This argument tells R to print the axes, but increas the size
   	      contour(                            # This is the line that adds the contour lines
   	        im$x,                             # The variable to be displayed on the x-axis
   	        im$y,                             # The variable to be displayed on the y-axis
   	        im$z,                             # The response variable you wish to plot
-  	        levels=seq(0,1,.05),                   # This number needs to match the one in 'col' on line 102
+  	        levels=seq(0,1,.05),              # This number needs to match the one in 'col' on line 102
   	        drawlabels = FALSE,               # The labels are realy ugly
   	        col = c(rep(rgb(0,0,0, alpha=0.05), 16),'black', rep(rgb(0,0,0, alpha=0), 10)),
   	        lwd = c(rep(1, 16),2,rep(1, 10)),
