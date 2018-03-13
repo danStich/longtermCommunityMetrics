@@ -15,7 +15,6 @@ libraries = c(
 lapply(libraries, require, character.only = TRUE)
 
 # Function declaration -----
-
 # . summarySE -----
 # This code was adapted from SG's Honnedaga Inverts graphing script
 # Helper function from http://www.cookbook-r.com/Graphs/Plotting_means_and_error_bars_(ggplot2)/
@@ -232,7 +231,6 @@ lapply(libraries, require, character.only = TRUE)
 
   
 # Mixed model to analyze CV -----
-
 # . Data read and screening -----
   # Read in new CSV file with 4 factor columns added to
   # the exported file above, note that this file excludes richness
@@ -273,11 +271,16 @@ lapply(libraries, require, character.only = TRUE)
   
   
 # Power analysis -----
-
-    
 # . Descriptive statistics for observed data -----
+    
+# Define metric of interest and save to var    
   var='CBiomLength'
 
+# Create a new column in the TempVar df to hold the metric
+# of interest. This "new" column can be used responsively
+# in the data summary below
+  TempVar$var = TempVar[[var]]
+    
 # Summarize sampling means and sds for each factor level
 # of interest on the log scale. We use the log scale here
 # to avoid simulating negative values for positive-
@@ -287,19 +290,19 @@ lapply(libraries, require, character.only = TRUE)
   sites = ddply(TempVar,
                 'Site',
                 summarize,
-                mu = mean(log(CBiomLength)),
-                sd = sd(log(CBiomLength))
+                mu = mean(log(var)),
+                sd = sd(log(var))
                 )
 
 # Set aside the site and column of interest in a new
 # dataframe that also contains the baseline vs future
 # grouping variable.
-  obs = data.frame(TempVar[ , c('Site', 'CBiomLength')],
+  obs = data.frame(TempVar[ , c('Site', 'var')],
                    group=0
                    )  
   
 # Calculate grand mean and sd in case it is needed later on
-  grand = c(mean(log(TempVar$CBiomLength)), sd(log(TempVar$CBiomLength)))
+  grand = c(mean(log(TempVar$var)), sd(log(TempVar$var)))
   
   
 # . Simulation settings & inputs -----
@@ -383,7 +386,7 @@ lapply(libraries, require, character.only = TRUE)
       
   # Fit a linear mixed model to test for differences between
   # the baseline data (2012-2017) compared to future data
-    test = lmer(CBiomLength~group+(1|Site), data=combo)
+    test = lmer(var~group+(1|Site), data=combo)
     
   # Store the p-value for the group effect to see if the 
   # sample resulted in rejection of the null hypothesis that
@@ -416,12 +419,17 @@ lapply(libraries, require, character.only = TRUE)
   res$ind[res$p<0.05] = 1
   
 # Create another column that can be used to count the number
-# of reps for each combination of N and d
+# of reps for each combination of N and d. Initialize to one so 
+# we can sum them up.
   res$totes = 1
  
 # Calculate the percent of tests that resulted in a successful
 # rejection for each combination of N and d
-  outs = ddply(res, c('N', 'd'), summarize, success=sum(ind)/sum(totes))
+  outs = ddply(res,
+               c('N', 'd'),
+               summarize,
+               success=sum(ind)/sum(totes)
+               )
   
 # Contour plot of p-value by N and delta
   # Now, we will make a new dataframe that will retain three
@@ -432,8 +440,9 @@ lapply(libraries, require, character.only = TRUE)
   	persp.test = persp.test[with(persp.test, order(x, y)), ]
 
   # Interpolate z across x and y
-  	im = with(persp.test, interp(x, y, z,
-  	                             duplicate='mean', nx=50, ny=50))
+  	im = with(persp.test,
+  	          interp(x, y, z, duplicate='mean', nx=50, ny=50)
+  	          )
 
   # Make the contour plot
       par(mar=c(5, 5.2, 1, 10))
@@ -443,20 +452,21 @@ lapply(libraries, require, character.only = TRUE)
   	    im$y,                                 # The variable to be displayed on the y-axis
   	    im$z,                                 # The response variable you wish to plot
   	    levels=seq(0,.5,.05),
-  	    col=rev(gray.colors(11)),             # Could also choose 'grey.colors' or 'topo.colors'. If you want the ramp to go the other way, just delete the 'rev'. Note that you will need to change the 20 in parentheses to match the number of levels that you actually have or want to display.
+  	    col=rev(grey.colors(11)),             # Could also choose 'terrain.colors' or 'topo.colors'. If you want the ramp to go the other way, just delete the 'rev'. Note that you will need to change the 20 in parentheses to match the number of levels that you actually have or want to display.
   	    main = '',                            # I don't like in-figure titles. You can add one, though. You will, however, need to change the 'mar' argument in the call to par above.
-  	    ylim=c(min(im$y), max(im$y)), # Set max and min of y-axis to your data range
+  	    ylim=c(min(im$y), max(im$y)),         # Set max and min of y-axis to your data range
   	    xlim=c(min(im$x), max(im$x)),         # Set max and min of x-axis to your data range
-  	    xlab="Number of samples",              # Change the words in the quotes to change the x-axis label
+  	    xlab="Number of samples",             # Change the words in the quotes to change the x-axis label
   	    cex.lab=1.5,                          # This makes the labels 1.5x larger than default
   	    plot.axes = {                         # This argument tells R to print the axes, but increas the size
   	      contour(                            # This is the line that adds the contour lines
   	        im$x,                             # The variable to be displayed on the x-axis
   	        im$y,                             # The variable to be displayed on the y-axis
   	        im$z,                             # The response variable you wish to plot
-  	        levels=seq(0,.5,.05),                   # This number needs to match the one in 'col' on line 102
-  	        drawlabels = FALSE,               # The labels are realy ugly
-  	        col = c(rep(rgb(0,0,0, alpha=0.05), 1),'black', rep(rgb(0,0,0, alpha=0), 10)),
+  	        levels=seq(0,.5,.05),             # This number needs to match the one in 'col' on line 102
+  	        drawlabels = FALSE,               # The labels are really ugly
+  	        col = c(rep(rgb(0,0,0, alpha=0.05), 1),
+  	                'black', rep(rgb(0,0,0, alpha=0), 10)),
   	        lwd = c(1,2,rep(1, 10)),
   	        lty = c(1,2,rep(1, 10)),
   	        add = TRUE                        # Add the lines to the current plot
@@ -479,8 +489,9 @@ lapply(libraries, require, character.only = TRUE)
   	persp.test = persp.test[with(persp.test, order(x, y)), ]
 
   # Interpolate z across x and y
-  	im = with(persp.test, interp(x, y, z,
-  	                             duplicate='mean', nx=10, ny=10))
+  	im = with(persp.test,
+  	          interp(x, y, z, duplicate='mean', nx=10, ny=10)
+  	          )
 
   # Make the contour plot
       par(mar=c(5, 5.2, 1, 10))
@@ -490,7 +501,7 @@ lapply(libraries, require, character.only = TRUE)
   	    im$y,                                 # The variable to be displayed on the y-axis
   	    im$z,                                 # The response variable you wish to plot
   	    levels=seq(0,1,.05),
-  	    col=rev(gray.colors(21)),             # Could also choose 'grey.colors' or 'topo.colors'. If you want the ramp to go the other way, just delete the 'rev'. Note that you will need to change the 20 in parentheses to match the number of levels that you actually have or want to display.
+  	    col=rev(gray.colors(21)),             # Could also choose 'terrain.colors' or 'topo.colors'. If you want the ramp to go the other way, just delete the 'rev'. Note that you will need to change the 20 in parentheses to match the number of levels that you actually have or want to display.
   	    main = '',                            # I don't like in-figure titles. You can add one, though. You will, however, need to change the 'mar' argument in the call to par above.
   	    ylim=c(min(im$y), max(im$y)),         # Set max and min of y-axis to your data range
   	    xlim=c(min(im$x), max(im$x)),         # Set max and min of x-axis to your data range
@@ -502,7 +513,7 @@ lapply(libraries, require, character.only = TRUE)
   	        im$y,                             # The variable to be displayed on the y-axis
   	        im$z,                             # The response variable you wish to plot
   	        levels=seq(0,1,.05),              # This number needs to match the one in 'col' on line 102
-  	        drawlabels = FALSE,               # The labels are realy ugly
+  	        drawlabels = FALSE,               # The labels are really ugly
   	        col = c(rep(rgb(0,0,0, alpha=0.05), 16),'black', rep(rgb(0,0,0, alpha=0), 10)),
   	        lwd = c(rep(1, 16),2,rep(1, 10)),
   	        lty = c(rep(1, 16),2,rep(1, 10)),
