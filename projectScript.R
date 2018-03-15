@@ -235,6 +235,12 @@ lapply(libraries, require, character.only = TRUE)
   # Read in new CSV file with 4 factor columns added to
   # the exported file above, note that this file excludes richness
   CVs_Cat <- read.csv("CVs_categories_3-2-18.csv")
+  
+  #Add column for "Park" to denote an Adirondack or Catskill site - will be useful later for diagnostics
+  CVs_Cat$Park <- c('ADK', 'Catskill', 'ADK', 'Catskill', 'ADK', 'ADK', 'ADK', 'Catskill', 'Catskill', 'ADK', 'Catskill','Catskill','Catskill')
+  
+  #Create a boxplot to show how CV differs between Adirondack and Catskill sites
+  boxplot(CV ~ Park, data = CVs_Cat, ylim=c(0,1), ylab = "Coefficient of variation (CV)")
 
   #Create series of boxplots looking at CVs across the 4 factors
   par(mfrow = c(2, 2), mar = c(3, 4, 1, 1))
@@ -243,23 +249,23 @@ lapply(libraries, require, character.only = TRUE)
   boxplot(CV ~ CommunitySt,data = CVs_Cat, ylim=c(0,1), ylab = "Coefficient of variation (CV)")
   boxplot(CV ~ MultipassFirstPass,data = CVs_Cat, ylim=c(0,1), ylab = "Coefficient of variation (CV)")
   
-  #Histogram of 
-  hist(CVs_Cat$CV)
-  
-  
+
 # . Model -----  
 # Mixed model to assess the effect of 4 factors (types of metrics) on CV
   M1 <- lme(CV ~ DensBiom + LengthArea + CommunitySt + MultipassFirstPass,
             random =~ 1 | Site, data=CVs_Cat)
   summary(M1)
   
+  # Histogram of residuals to look for non-normality.
+    hist(E1)
+  
   # Plot residuals versus fitted values to look for heterogeniety (cone shape)
     E1 <- resid(M1, type = "n")
     F1 <- fitted(M1)
     par(mfrow = c(1, 1), mar = c(5, 5, 2, 2), cex.lab = 1.5)
     plot(x = F1, 
-         y = E1,
-         xlab = "Fitted values",
+         y = E1, 
+         xlab = "Fitted values", 
          ylab = "Residuals")
     abline(h = 0, lty = 2, col = 1)
   
@@ -269,7 +275,13 @@ lapply(libraries, require, character.only = TRUE)
     boxplot(E1 ~ Site, data = CVs_Cat, las=2)
     abline(h = 0)
   
-  
+  # Plot residuals by ADKs or Catskills.
+    par(mfrow = c(1, 1), mar = c(5, 5, 2, 2), cex.lab = 1.5)
+    boxplot(E1 ~ Park, data = CVs_Cat, las=2)
+    abline(h = 0)
+    
+    
+    
 # Power analysis -----
 # . Descriptive statistics for observed data -----
     
