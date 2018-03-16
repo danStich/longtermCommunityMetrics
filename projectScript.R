@@ -332,7 +332,7 @@ lapply(libraries, require, character.only = TRUE)
 ### any object created from the original, as well!
   
 # Number of runs for the simulation
-  nruns = 10000
+  nruns = 1000
     
   
 # . Memory pre-allocation for simulation output -----   
@@ -390,7 +390,7 @@ lapply(libraries, require, character.only = TRUE)
   # change the value of delta to 0 or understand that the
   # blue dots should be delta% different than the median line
   # in the boxplots on average.
-    # boxplot(CBiomLength~Site, data=molten)
+    # boxplot(var~Site, data=molten)
     # points(exp(sites$mu), pch=21, col='blue', bg='blue')
   
   # Combine the simulated data with the observed data
