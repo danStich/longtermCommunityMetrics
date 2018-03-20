@@ -256,9 +256,6 @@ lapply(libraries, require, character.only = TRUE)
             random =~ 1 | Site, data=CVs_Cat)
   summary(M1)
   
-  # Histogram of residuals to look for non-normality.
-    hist(E1)
-  
   # Plot residuals versus fitted values to look for heterogeniety (cone shape)
     E1 <- resid(M1, type = "n")
     F1 <- fitted(M1)
@@ -268,7 +265,10 @@ lapply(libraries, require, character.only = TRUE)
          xlab = "Fitted values", 
          ylab = "Residuals")
     abline(h = 0, lty = 2, col = 1)
-  
+    
+  # Histogram of residuals to look for non-normality.
+    hist(E1)
+    
   # Plot residuals by site, if we had individual boxes way above or below mean 
   # we would have a problem. If all similar then it means the random effect did its job
     par(mfrow = c(1, 1), mar = c(5, 5, 2, 2), cex.lab = 1.5)
