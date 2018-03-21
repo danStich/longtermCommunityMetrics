@@ -332,11 +332,11 @@ lapply(libraries, require, character.only = TRUE)
 # Inner loop settings & inputs
   # Decide which sample sizes to work with for each site during
   # future sampling
-    n = seq(1, 50, 5)
+    n = seq(1, 100, 5)
     
   # Decide which effect size you are interested in as a percent
   # difference in estimated means between baseline and future sample
-    delta = c(0.05, 0.10, 0.15, 0.20, 0.25, 0.30)
+    delta = c(0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.45, 0.50)
     ### Potential bug with the seq fxn. When I try to define
     ### delta as seq(0, 0.30, 0.05), R cannot see that some
     ### of the elements are equal to 0.15 (all other values 
@@ -481,8 +481,7 @@ lapply(libraries, require, character.only = TRUE)
   tiff(filename = "sim.results.tif",
     width = 1600, height = 2000, units = "px", pointsize = 10,
     compression = "none",
-    res = 400, restoreConsole = TRUE,
-    type = "windows")  
+    res = 400)  
   
 # Set graphical parameters
   par(mfrow=c(6,2), oma=c(3,4,0,0), mar=c(1,1,.5,.5))
@@ -527,7 +526,7 @@ lapply(libraries, require, character.only = TRUE)
           axes = FALSE,
           frame.plot = TRUE,
           xlim = c(0, round(max(im$x), -1)),
-          ylim = c(0, 0.3)
+          ylim = c(0, round(max(im$y), 1))
         )         
         
     # Add the name of the metric to the plots  
@@ -535,16 +534,17 @@ lapply(libraries, require, character.only = TRUE)
       
   	# Add x(side=1) and y (side=2) tick marks to all plots 
       axis(side = 1, labels = FALSE, tick = TRUE)
-      axis(side = 2, at = seq(0, 0.3, 0.1),labels = FALSE, tick = TRUE)
+      axis(side = 2, at = seq(0, round(max(im$y)), 0.1),labels = FALSE, tick = TRUE)
       
     # Add x-axis tick labels only if plot 11 or 12
       if((i==11) || (i==12)){
-        axis(side = 1, at = seq(0, 50, 10), labels = seq(0, 50, 10))  
+        axis(side = 1, at = seq(0, round(max(im$x), -1), 10),
+             labels = seq(0, round(max(im$x), -1), 10))  
       }     
       
     # Add y-axis tick labels only if plot number is even  
       if((i %% 2) != 0) {
-        axis(side = 2, at = seq(0, 0.3, 0.1), labels = seq(0, 0.3, 0.1), las=2)  
+        axis(side = 2, at = seq(0, max(im$y), 0.1), labels = seq(0, max(im$y), 0.1), las=2)  
       }
 
   }
