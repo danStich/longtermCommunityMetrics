@@ -5,8 +5,6 @@
 libraries = c(
   'akima',
   'ggplot2',
-  'lme4',
-  'lmerTest',
   'plyr',
   'reshape',
   'nlme'
@@ -286,12 +284,30 @@ lapply(libraries, require, character.only = TRUE)
 # . Descriptive statistics for observed data -----
     
 # Define metric of interest and save to var    
-  var='CBiomLength'
+  #var='CBiomLength'
+ 
+# . Simulation ----- 
+# DSS: This is really gross, but we are 99% of the way there
+# with it at this point. Otherwise, we also could randomly select
+# Temp$var and save that info to save a loop...
+    
+# Vector pre-allocation for results of whole simulation,
+# for each of 12 metrics
+  outputs = vector(mode='list', length=12) 
+
+# Number of runs for each metric
+  nruns = 10000    
+  
+# Set up a progress bar
+  pb <- txtProgressBar(min = 0, max = nruns*12, style=3, char="><> ")
+    
+# Repeat the simulation for each of the metrics in TempVar        
+  for(j in 4:15){
 
 # Create a new column in the TempVar df to hold the metric
 # of interest. This "new" column can be used responsively
 # in the data summary below
-  TempVar$var = TempVar[[var]]
+  TempVar$var = TempVar[,j]
     
 # Summarize sampling means and sds for each factor level
 # of interest on the log scale. We use the log scale here
@@ -312,116 +328,101 @@ lapply(libraries, require, character.only = TRUE)
   obs = data.frame(TempVar[ , c('Site', 'var')],
                    group=0
                    )  
-  
-# Calculate grand mean and sd in case it is needed later on
-  grand = c(mean(log(TempVar$var)), sd(log(TempVar$var)))
-  
-  
-# . Simulation settings & inputs -----
-# Decide which sample sizes to work with for each site during
-# future sampling
-  n = seq(1, 100, 5)
-  
-# Decide which effect size you are interested in as a percent
-# difference in estimated means between baseline and future sample
-  delta = c(0.05, 0.10, 0.15, 0.20, 0.25, 0.30)
-### Potential bug with the seq fxn. When I try to define
-### delta as seq(0, 0.30, 0.05), R cannot see that some
-### of the elements are equal to 0.15 (all other values 
-### are totally fine). This behavior carries through for
-### any object created from the original, as well!
-  
-# Number of runs for the simulation
-  nruns = 1000
     
-  
-# . Memory pre-allocation for simulation output -----   
-# Vector to hold sample sizes used for each run
-  N = vector(mode='numeric', length=nruns)    
-  
-# Vector to effect size
-  d = vector(mode='numeric', length=nruns)  
-  
-# Vector to hold p-values from lmer
-  p = vector(mode='numeric', length=nruns)   
+# Inner loop settings & inputs
+  # Decide which sample sizes to work with for each site during
+  # future sampling
+    n = seq(1, 50, 5)
     
-    
-# . Simulation ----- 
-# Set up a progress bar
-  pb <- txtProgressBar(min = 0, max = nruns, style=3, char="><> ")
-
-# Run the simulation
-  for(i in 1:nruns){  
-  
-  # Choose sample size
-    simN = sample(n, 1, replace=TRUE)
-    
-  # Choose effect size (difference you want to detect) based on
-  # values of delta
-    eff = sample(delta, 1, replace=TRUE)
-    
-  # Pre-allocate memory for output
-    # List to hold random samples
-      samps = vector(mode='list', length=length(unique(sites$Site)))
-      names(samps) = unique(sites$Site)
-
-  # Randomly sample response based on groups, and add in the 
-  # difference between sampling periods. These data will 
-  # represent a sample in the future, and will be compared to 
-  # the data collected 2012-2017. The direction of the change
-  # is irrelevant to the power analysis, but in this case we
-  # expect the response to increase due to recovery from 
-  # acidification. We sample from a log normal to avoid 
-  # drawing negative values from a positive definitive variable.
-    for(t in 1:length(samps)){
-      samps[[t]] = rlnorm(simN, mean=(sites$mu[t]), sd=sites$sd[t]) + eff*(exp(sites$mu[t])) 
-    }
-  
-  # Make a dataframe holding sites and simulated response
-    # Compile samples
-      prep = do.call(rbind, samps)
+  # Decide which effect size you are interested in as a percent
+  # difference in estimated means between baseline and future sample
+    delta = c(0.05, 0.10, 0.15, 0.20, 0.25, 0.30)
+    ### Potential bug with the seq fxn. When I try to define
+    ### delta as seq(0, 0.30, 0.05), R cannot see that some
+    ### of the elements are equal to 0.15 (all other values 
+    ### are totally fine). This behavior carries through for
+    ### any object created from the original, as well!
       
-    # Convert to long form for lmer and add a group var
-      molten = data.frame(melt(prep)[ , c(1,3)], group=1)
-      names(molten) = names(obs)
+# Memory pre-allocation for output from inner loop   
+  # Vector to hold sample sizes used for each run
+    N = vector(mode='numeric', length=nruns)    
+    
+  # Vector to effect size
+    d = vector(mode='numeric', length=nruns)  
+    
+  # Vector to hold p-values from lmer
+    p = vector(mode='numeric', length=nruns)   
       
-  # Sanity check to make sure the simulated data (boxes) line
-  # up with our observed means. To use this code, you need to
-  # change the value of delta to 0 or understand that the
-  # blue dots should be delta% different than the median line
-  # in the boxplots on average.
-    # boxplot(var~Site, data=molten)
-    # points(exp(sites$mu), pch=21, col='blue', bg='blue')
+# Inner loop   
+  # Run the simulation for the selected variable (total of 12)
+    for(i in 1:nruns){  
+    
+    # Choose sample size
+      simN = sample(n, 1, replace=TRUE)
+      
+    # Choose effect size (difference you want to detect) based on
+    # values of delta
+      eff = sample(delta, 1, replace=TRUE)
+      
+    # Pre-allocate memory for output
+      # List to hold random samples
+        samps = vector(mode='list', length=length(unique(sites$Site)))
+        names(samps) = unique(sites$Site)
   
-  # Combine the simulated data with the observed data
-    combo = rbind(obs, molten)
+    # Randomly sample response based on groups, and add in the 
+    # difference between sampling periods. These data will 
+    # represent a sample in the future, and will be compared to 
+    # the data collected 2012-2017. The direction of the change
+    # is irrelevant to the power analysis, but in this case we
+    # expect the response to increase due to recovery from 
+    # acidification. We sample from a log normal to avoid 
+    # drawing negative values from a positive definitive variable.
+      for(t in 1:length(samps)){
+        samps[[t]] = rlnorm(simN, mean=(sites$mu[t]), sd=sites$sd[t]) + eff*(exp(sites$mu[t])) 
+      }
+    
+    # Make a dataframe holding sites and simulated response
+      # Compile samples
+        prep = do.call(rbind, samps)
+        
+      # Convert to long form for lmer and add a group var
+        molten = data.frame(melt(prep)[ , c(1,3)], group=1)
+        names(molten) = names(obs)
+        
+    # Sanity check to make sure the simulated data (boxes) line
+    # up with our observed means. To use this code, you need to
+    # change the value of delta to 0 or understand that the
+    # blue dots should be delta% different than the median line
+    # in the boxplots on average.
+      # boxplot(var~Site, data=molten)
+      # points(exp(sites$mu), pch=21, col='blue', bg='blue')
+    
+    # Combine the simulated data with the observed data
+      combo = rbind(obs, molten)
+        
+    # Fit a linear mixed model to test for differences between
+    # the baseline data (2012-2017) compared to future data
+      test = tryCatch(
+        lme(var~group, random=~1|Site, data=combo),
+        error = function(x) x=1
+      )
+    # Store the p-value for the group effect to see if the 
+    # sample resulted in rejection of the null hypothesis that
+    # there is no difference between sampling periods assuming
+    # a Type-I error rate (alpha) of 0.05
+      p[i] = summary(test)$tTable["group","p-value"]
+  
       
-  # Fit a linear mixed model to test for differences between
-  # the baseline data (2012-2017) compared to future data
-    test = lmer(var~group+(1|Site), data=combo)
-    
-  # Store the p-value for the group effect to see if the 
-  # sample resulted in rejection of the null hypothesis that
-  # there is no difference between sampling periods assuming
-  # a Type-I error rate (alpha) of 0.05
-    p[i] = c(summary(test)$coefficients["group", "Pr(>|t|)"])
-    
-  # Fill in any of the objects that haven't been filled in above
-    N[i] = simN
-    d[i] = eff
-    
-  # System time out for progress bar update
-    Sys.sleep(0.0001)
-    setTxtProgressBar(pb, i)
-    
+    # Fill in any of the objects that haven't been filled in above
+      N[i] = simN
+      d[i] = eff
+      
+    # System time out for progress bar update
+      Sys.sleep(0.00001)
+      setTxtProgressBar(pb, (i+nruns*(j-3-1)))        
   }    
-  
-# Close the progress meter
-  close(pb)
 
-
-# . Results -----   
-# Gather results into a single dataframe
+# Gather results into a single dataframe for this metric
   res = data.frame(N, d, p)
   
 # Create an indicator for whether or not null hypothesis
@@ -443,100 +444,113 @@ lapply(libraries, require, character.only = TRUE)
                success=sum(ind)/sum(totes)
                )
   
-# Contour plot of p-value by N and delta
-  # Now, we will make a new dataframe that will retain three
-  # columns from our data.
-  	persp.test = data.frame(x=res$N,	y=res$d,	z=res$p)
+# Summarize by each combination of N and d
+# Note that the elements of this list need not be the same length
+# as the number of simulations (nruns), but they will be if the
+# number of runs is sufficiently large.
+  outputs[[j-3]] = outs
+  
+}
+# Close the progress meter
+  close(pb)
+    
+# . Results -----   
+# Print the output from the simulation
+  #outputs   
 
-  # Order the data frame
-  	persp.test = persp.test[with(persp.test, order(x, y)), ]
+# Assign names to the outputs list so we know
+# which metric they correspond to
+  names(outputs) = names(TempVar)[4:15]
 
-  # Interpolate z across x and y
-  	im = with(persp.test,
-  	          interp(x, y, z, duplicate='mean', nx=50, ny=50)
-  	          )
+# Bind the list into a dataframe and add the metric names
+# to a new column called 'metric'
+  sim.res = dplyr::bind_rows(outputs, .id = 'metric')  
+  
+# Rename the first column of the dataframe  
+# Save the output data to a compressed r data file  
+  save(sim.res, file='sim.res.rda')  
 
-  # Make the contour plot
-      par(mar=c(5, 5.2, 1, 10))
-    # filled.contour is the function that actually makes the contour plot
-  	  filled.contour(
-  	    im$x,                                 # The variable to be displayed on the x-axis
-  	    im$y,                                 # The variable to be displayed on the y-axis
-  	    im$z,                                 # The response variable you wish to plot
-  	    levels=seq(0,.5,.05),
-  	    col=rev(grey.colors(11)),             # Could also choose 'terrain.colors' or 'topo.colors'. If you want the ramp to go the other way, just delete the 'rev'. Note that you will need to change the 20 in parentheses to match the number of levels that you actually have or want to display.
-  	    main = '',                            # I don't like in-figure titles. You can add one, though. You will, however, need to change the 'mar' argument in the call to par above.
-  	    ylim=c(min(im$y), max(im$y)),         # Set max and min of y-axis to your data range
-  	    xlim=c(min(im$x), max(im$x)),         # Set max and min of x-axis to your data range
-  	    xlab="Number of samples",             # Change the words in the quotes to change the x-axis label
-  	    cex.lab=1.5,                          # This makes the labels 1.5x larger than default
-  	    plot.axes = {                         # This argument tells R to print the axes, but increas the size
-  	      contour(                            # This is the line that adds the contour lines
-  	        im$x,                             # The variable to be displayed on the x-axis
-  	        im$y,                             # The variable to be displayed on the y-axis
-  	        im$z,                             # The response variable you wish to plot
-  	        levels=seq(0,.5,.05),             # This number needs to match the one in 'col' on line 102
-  	        drawlabels = FALSE,               # The labels are really ugly
-  	        col = c(rep(rgb(0,0,0, alpha=0.05), 1),
-  	                'black', rep(rgb(0,0,0, alpha=0), 10)),
-  	        lwd = c(1,2,rep(1, 10)),
-  	        lty = c(1,2,rep(1, 10)),
-  	        add = TRUE                        # Add the lines to the current plot
-  	      );                                  # Close the call to the contour line function
-  	      axis(1, cex.axis=1.25);             # X axis tick marks & tick labels
-  	      axis(2, cex.axis=1.25)              # Y axis tick marks & tick labels
-  	    }                                     # Close the argument plot.axes
-  	  )                                       # Close the call to filled.contour
-  	# Finally, add a label for the y-axis
-      mtext(side = 2, "Effect size", line=4, cex.lab=1.5, cex=1.5)
-      mtext(side=4, "P-value",
-            line=7.5, cex=1.25)  
+  
+# . Plotting code -----  
+  
+# Load the data file that contains the simulation results 
+  load('sim.res.rda')
+  
+# Set up an image file we can write to. Change to the type, pointsize,
+# resolution, etc. that you are happy with and let it rip
+  tiff(filename = "sim.results.tif",
+    width = 1600, height = 2000, units = "px", pointsize = 10,
+    compression = "none",
+    res = 400, restoreConsole = TRUE,
+    type = "windows")  
+  
+# Set graphical parameters
+  par(mfrow=c(6,2), oma=c(3,4,0,0), mar=c(1,1,.5,.5))
+
+# For each metric:
+# Subset the data, interpolate values of effect size over
+# sample sizes(x) and effect sizes (y), and plot the contour
+# for a power (z, 1-beta) of 0.80
+  
+  for(i in 1:length(unique(sim.res$metric))){
+    
+    # Choose a variable to plot (this will change)
+      sims = sim.res[sim.res$metric==unique(sim.res$metric)[i], ]
       
-# Contour plot of power by N and delta
-  # Now, we will make a new dataframe that will retain three
-  # columns from our data.
-  	persp.test = data.frame(x=outs$N,	y=outs$d,	z=outs$success)
-
-  # Order the data frame
-  	persp.test = persp.test[with(persp.test, order(x, y)), ]
-
-  # Interpolate z across x and y
-  	im = with(persp.test,
-  	          interp(x, y, z, duplicate='mean', nx=10, ny=10)
-  	          )
-
-  # Make the contour plot
-      par(mar=c(5, 5.2, 1, 10))
-    # filled.contour is the function that actually makes the contour plot
-  	  filled.contour(
-  	    im$x,                                 # The variable to be displayed on the x-axis
-  	    im$y,                                 # The variable to be displayed on the y-axis
-  	    im$z,                                 # The response variable you wish to plot
-  	    levels=seq(0,1,.05),
-  	    col=rev(gray.colors(21)),             # Could also choose 'terrain.colors' or 'topo.colors'. If you want the ramp to go the other way, just delete the 'rev'. Note that you will need to change the 20 in parentheses to match the number of levels that you actually have or want to display.
-  	    main = '',                            # I don't like in-figure titles. You can add one, though. You will, however, need to change the 'mar' argument in the call to par above.
-  	    ylim=c(min(im$y), max(im$y)),         # Set max and min of y-axis to your data range
-  	    xlim=c(min(im$x), max(im$x)),         # Set max and min of x-axis to your data range
-  	    xlab="Number of samples",             # Change the words in the quotes to change the x-axis label
-  	    cex.lab=1.5,                          # This makes the labels 1.5x larger than default
-  	    plot.axes = {                         # This argument tells R to print the axes, but increas the size
-  	      contour(                            # This is the line that adds the contour lines
-  	        im$x,                             # The variable to be displayed on the x-axis
-  	        im$y,                             # The variable to be displayed on the y-axis
-  	        im$z,                             # The response variable you wish to plot
-  	        levels=seq(0,1,.05),              # This number needs to match the one in 'col' on line 102
-  	        drawlabels = FALSE,               # The labels are really ugly
-  	        col = c(rep(rgb(0,0,0, alpha=0.05), 16),'black', rep(rgb(0,0,0, alpha=0), 10)),
-  	        lwd = c(rep(1, 16),2,rep(1, 10)),
-  	        lty = c(rep(1, 16),2,rep(1, 10)),
-  	        add = TRUE                        # Add the lines to the current plot
-  	      );                                  # Close the call to the contour line function
-  	      axis(1, cex.axis=1.25);             # X axis tick marks & tick labels
-  	      axis(2, cex.axis=1.25)              # Y axis tick marks & tick labels
-  	    }                                     # Close the argument plot.axes
-  	  )                                       # Close the call to filled.contour
-  	# Finally, add a label for the y-axis
-      mtext(side = 2, "Effect size", line=4, cex.lab=1.5, cex=1.5)
-      mtext(side=4, expression(paste("Power (1 - ", beta, ")")),
-            line=8, cex=1.25)        
+    # Contour plot of power by N and delta
+    # Make a new dataframe that will retain three
+    # columns from our data
+    	persp.test = data.frame(x=sims$N,	y=sims$d,	z=sims$success)
+    
+    # Order the data frame
+    	persp.test = persp.test[with(persp.test, order(x, y)), ]
+    
+    # Interpolate z across x and y
+    	im = with(persp.test,
+    	          interp(x, y, z, duplicate='mean', nx=50, ny=10)
+    	          )
+    
+    # Make the contour plot
+      # Draw the contour plot
+        contour(                            
+          x = im$x,                             
+          y = im$y,                             
+          z = im$z,                             
+          levels = seq(0, 1, 0.10),              
+          drawlabels = FALSE,               
+          col = c(rep(rgb(0, 0, 0, alpha=0), 8),
+                  'black',
+                  rep(rgb(0, 0, 0, alpha=0), 10)
+                  ),
+          lwd = c(rep(1, 8), 1, rep(1, 10)),
+          lty = c(rep(1, 8), 1, rep(1, 10)),
+          axes = FALSE,
+          frame.plot = TRUE,
+          xlim = c(0, round(max(im$x), -1)),
+          ylim = c(0, 0.3)
+        )         
+        
+    # Add the name of the metric to the plots  
+      text(x = 0, y = 0.05, labels = unique(sim.res$metric)[i], adj = 0)
       
+  	# Add x(side=1) and y (side=2) tick marks to all plots 
+      axis(side = 1, labels = FALSE, tick = TRUE)
+      axis(side = 2, at = seq(0, 0.3, 0.1),labels = FALSE, tick = TRUE)
+      
+    # Add x-axis tick labels only if plot 11 or 12
+      if((i==11) || (i==12)){
+        axis(side = 1, at = seq(0, 50, 10), labels = seq(0, 50, 10))  
+      }     
+      
+    # Add y-axis tick labels only if plot number is even  
+      if((i %% 2) != 0) {
+        axis(side = 2, at = seq(0, 0.3, 0.1), labels = seq(0, 0.3, 0.1), las=2)  
+      }
+
+  }
+  
+# Add x and y-axis labels to the plot    
+  mtext(text="Effect size", side=2, line=2.5, cex=1, adj=.5, outer=TRUE)
+  mtext(text="Sample size (N)", side=1, line=1.5, cex=1, adj=.5, outer=TRUE)
+
+dev.off()  
