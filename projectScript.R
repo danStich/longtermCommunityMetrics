@@ -296,7 +296,7 @@ lapply(libraries, require, character.only = TRUE)
   outputs = vector(mode='list', length=12) 
 
 # Number of runs for each metric
-  nruns = 10000    
+  nruns = 20000    
   
 # Set up a progress bar
   pb <- txtProgressBar(min = 0, max = nruns*12, style=3, char="><> ")
@@ -332,11 +332,11 @@ lapply(libraries, require, character.only = TRUE)
 # Inner loop settings & inputs
   # Decide which sample sizes to work with for each site during
   # future sampling
-    n = seq(1, 100, 5)
+    n = seq(1, 61, 3)
     
   # Decide which effect size you are interested in as a percent
   # difference in estimated means between baseline and future sample
-    delta = c(0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.45, 0.50)
+    delta = c(0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40)
     ### Potential bug with the seq fxn. When I try to define
     ### delta as seq(0, 0.30, 0.05), R cannot see that some
     ### of the elements are equal to 0.15 (all other values 
@@ -554,3 +554,68 @@ lapply(libraries, require, character.only = TRUE)
   mtext(text="Sample size (N)", side=1, line=1.5, cex=1, adj=.5, outer=TRUE)
 
 dev.off()  
+
+# . Calculating necessary sample size -----
+# Extract the x and y coordinates for power of 0.80
+# at effect size of 0.20
+
+# Create a list to hold x and y coordinates for
+# the 0.80 power line that results from contour fxn
+  nFor2080 = vector(mode='list',
+                    length=length(unique(sim.res$metric)))
+
+# Loop through each of the metrics to determine
+# extract info from each set of interpolations
+# and get x,y coords for z=0.80
+  for(i in 1:length(unique(sim.res$metric))){
+  
+    # Choose a variable to query
+      sims = sim.res[sim.res$metric==unique(sim.res$metric)[i], ]
+      
+    # Order by observations
+    	persp.test = data.frame(x=sims$N,	y=sims$d,	z=sims$success)
+    
+    # Order the data frame
+    	persp.test = persp.test[with(persp.test, order(x, y)), ]
+    
+    # Interpolate z across x and y
+    	im = with(persp.test,
+    	          interp(x, y, z, duplicate='mean', nx=50, ny=10)
+    	          )  
+  
+    # Save the x,y coords for each metric to the list
+    # that we defined above
+      nFor2080[[i]] = contourLines(
+        im$x,
+        im$y,
+        im$z,
+        nlevels=1,
+        levels=0.80
+        )[[1]][2:3] # This keeps only the output we want
+  }
+
+# Assign names to the outputs list so we know
+# which metric they correspond to
+  names(nFor2080) = names(TempVar)[4:15]
+
+# Bind the list into a dataframe and add the metric names
+# to a new column called 'metric'
+  nFor2080_r = dplyr::bind_rows(nFor2080, .id = 'metric')  
+  # A 'tibble' that can be converted to a dataframe
+  nFor2080_r = data.frame(nFor2080_r)
+  
+# Select the rows for the data where the effect size is 
+# 0.20
+  nFor2080_r = nFor2080_r[round(nFor2080_r$y, 2)>=0.20,]
+
+# Select the first (minimum) sample size for each metric
+# for some reason I had trouble with multiple conditions,
+# so doing it separately here
+  nFor2080_r = nFor2080_r[(!duplicated(nFor2080_r$metric)),]
+  nFor2080_r
+  
+# Rename the first column of the dataframe  
+# Save the output data to a csv  
+  write.table(nFor2080_r, file='80pctCoords.csv',
+              row.names=FALSE, quote=FALSE, sep=',')  
+
