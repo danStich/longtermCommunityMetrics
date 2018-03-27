@@ -61,6 +61,15 @@ lapply(libraries, require, character.only = TRUE)
   }
 
 
+# . ceiling_dec-----
+# Function to round all decimal values up
+# to the next whole number. Code ripped from
+# answer at: https://stackoverflow.com/questions/35807523/r-decimal-ceiling
+  ceiling_dec <- function(x, level=1){
+    round(x + 5*10^(-level-1), level)
+  }
+
+
 # Data prep -----
 
 # ** STOP **
@@ -612,10 +621,33 @@ dev.off()
 # for some reason I had trouble with multiple conditions,
 # so doing it separately here
   nFor2080_r = nFor2080_r[(!duplicated(nFor2080_r$metric)),]
-  nFor2080_r
+  
+# Round sample sizes up because we can't take part
+# part of a sample and rounding down could result
+# in lower power than specified
+  nFor2080_r$x = ceiling_dec(nFor2080_r$x, 0)
+  
+# Replace values of 61 (or more) with NA because this just means
+# we reached max sample size without detecting effect.
+  nFor2080_r$x[nFor2080_r$x > 60] <- NA
   
 # Rename the first column of the dataframe  
 # Save the output data to a csv  
   write.table(nFor2080_r, file='80pctCoords.csv',
               row.names=FALSE, quote=FALSE, sep=',')  
 
+# Do a regression of mean CV on the number of samples
+# required to detect 0.20
+  means = plyr::ddply(CVs_Cat, 'variable', 
+                      summarize, means=mean(CV))
+  names(means)[1] ='metric'
+  
+# Match up the mean CVs wtih the minimum sample size
+  tester = merge(means, nFor2080_r)
+
+# Scatterplot- meh. That one point ruins the whole picture
+  plot(x=tester$means,
+       y=tester$x)
+  
+  
+  
