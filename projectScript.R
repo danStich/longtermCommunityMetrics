@@ -305,7 +305,7 @@ lapply(libraries, require, character.only = TRUE)
   outputs = vector(mode='list', length=12) 
 
 # Number of runs for each metric
-  nruns = 20000    
+  nruns = 10   
   
 # Set up a progress bar
   pb <- txtProgressBar(min = 0, max = nruns*12, style=3, char="><> ")
@@ -387,8 +387,10 @@ lapply(libraries, require, character.only = TRUE)
     # acidification. We sample from a log normal to avoid 
     # drawing negative values from a positive definitive variable.
       for(t in 1:length(samps)){
-        samps[[t]] = rlnorm(simN, mean=(sites$mu[t]), sd=sites$sd[t]) + eff*(exp(sites$mu[t])) 
-      }
+        samps[[t]] = rlnorm(simN, 
+                            mean=(log(exp(sites$mu[t]) + exp(sites$mu[t])*eff)),
+                            sd=sites$sd[t])       
+        }
     
     # Make a dataframe holding sites and simulated response
       # Compile samples
@@ -589,7 +591,7 @@ dev.off()
     
     # Interpolate z across x and y
     	im = with(persp.test,
-    	          interp(x, y, z, duplicate='mean', nx=50, ny=10)
+    	          interp(x, y, z, duplicate='mean', nx=10, ny=10)
     	          )  
   
     # Save the x,y coords for each metric to the list
@@ -645,9 +647,13 @@ dev.off()
 # Match up the mean CVs wtih the minimum sample size
   tester = merge(means, nFor2080_r)
 
-# Scatterplot- meh. That one point ruins the whole picture
+# Scatterplot- meh.
   plot(x=tester$means,
        y=tester$x)
+  
+# Regression
+  summary(lm(means~x, data=tester))$r.squared
+  
   
   
   
