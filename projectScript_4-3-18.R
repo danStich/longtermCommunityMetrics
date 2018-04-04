@@ -330,7 +330,7 @@ lapply(libraries, require, character.only = TRUE)
   outputs = vector(mode='list', length=12) 
 
 # Number of runs for each metric
-  nruns = 5000   
+  nruns = 20000   
   
 # Set up a progress bar
   pb <- txtProgressBar(min = 0, max = nruns*12, style=3, char="><> ")
@@ -515,7 +515,7 @@ lapply(libraries, require, character.only = TRUE)
 # Set up an image file we can write to. Change to the type, pointsize,
 # resolution, etc. that you are happy with and let it rip
   tiff(filename = "sim.results.tif",
-    width = 1600, height = 2000, units = "px", pointsize = 10,
+    width = 1650, height = 2000, units = "px", pointsize = 9,
     compression = "none",
     res = 400)  
   
@@ -570,16 +570,19 @@ lapply(libraries, require, character.only = TRUE)
       
   	# Add x(side=1) and y (side=2) tick marks to all plots 
       axis(side = 1, labels = FALSE, tick = TRUE)
-      axis(side = 2, at = seq(0, round(max(im$y)), 0.1),labels = FALSE, tick = TRUE)
+      axis(side = 2,
+           at = seq(0, 1, 0.1),
+           labels = FALSE,
+           tick = TRUE)
       
     # Add x-axis tick labels only if plot 11 or 12
-      if((i==11) || (i==12)){
+      if((i==19) || (i==20)|| (i==21)){
         axis(side = 1, at = seq(0, round(max(im$x), -1), 10),
              labels = seq(0, round(max(im$x), -1), 10))  
       }     
       
     # Add y-axis tick labels only if plot number is even  
-      if((i %% 2) != 0) {
+      if((i %in% c(1,4,7,10,13,16,19))) {
         axis(side = 2, at = seq(0, max(im$y), 0.1), labels = seq(0, max(im$y), 0.1), las=2)  
       }
 
