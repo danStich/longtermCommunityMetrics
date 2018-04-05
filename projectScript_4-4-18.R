@@ -196,7 +196,7 @@ lapply(libraries, require, character.only = TRUE)
       '_cv'
     )
   }
-
+  
 # Merge all dataframes in list through a
 # series of left joins on 'Site' and 'N' 
 ### DSS: can't figure out how to do this without
@@ -210,7 +210,9 @@ lapply(libraries, require, character.only = TRUE)
 # Extract CVs for each metric with Site
   CVshort = comps[ , c(1, grep('_cv', names(comps)))]
   
-# Reorder columns to produce a more interpretable graph (and to compare to graph I made with original script to see if new script had errors)  
+# Reorder columns to produce a more interpretable graph
+# (and to compare to graph I made with original script to
+# see if new script had errors)  
  # Currently (4/3/18) not using since we added the new metrics - not sure we need it
   # CVshort <- CVshort_unorg[c(1, 2, 8, 3, 9, 4, 10, 5, 11, 6, 12, 7, 13, 14)]
   
@@ -269,7 +271,6 @@ lapply(libraries, require, character.only = TRUE)
   # the exported file above, note that this file excludes richness
   CVs_Cat <- read.csv("CVs_categories_4-3-18.csv")
   
- 
   #Create a boxplot to show how CV differs between Adirondack and Catskill sites
   boxplot(CV ~ Park, data = CVs_Cat, ylim=c(0,1), ylab = "Coefficient of variation (CV)")
 
@@ -280,7 +281,6 @@ lapply(libraries, require, character.only = TRUE)
   boxplot(CV ~ CommunitySt,data = CVs_Cat, ylim=c(0,1), ylab = "Coefficient of variation (CV)")
   boxplot(CV ~ MultipassFirstPass,data = CVs_Cat, ylim=c(0,1), ylab = "Coefficient of variation (CV)")
   
-
 # . Model -----  
 # Mixed model to assess the effect of 4 factors (types of metrics) on CV
   #4-3-18: experimented with adding 'Park' to the model - it did not even approach significance
@@ -594,9 +594,9 @@ lapply(libraries, require, character.only = TRUE)
 
 dev.off()  
 
-# . Calculating necessary sample size -----
+# . Calculate necessary sample size for power by effect size -----
 # Extract the x and y coordinates for power of 0.80
-# at effect size of 0.20
+# at effect size of interest
 
 # Create a list to hold x and y coordinates for
 # the 0.80 power line that results from contour fxn
@@ -605,7 +605,7 @@ dev.off()
 
 # Loop through each of the metrics to determine
 # extract info from each set of interpolations
-# and get x,y coords for z=0.80
+# and get x, y coords for z=0.80
   for(i in 1:length(unique(sim.res$metric))){
   
     # Choose a variable to query
@@ -644,14 +644,22 @@ dev.off()
   nFor2080_r = data.frame(nFor2080_r)
   
 # Select the rows for the data where the effect size is 
-# 0.30
-  nFor2080_r = nFor2080_r[round(nFor2080_r$y, 2)>=0.3,]
-
+# 0.30. Note that we need to set CRich (richness) aside
+# because it has high enough power to detect change at 
+# the lowest N
+  # Set N=1 aside for richness
+    rich = nFor2080_r[nrow(nFor2080_r), ]
+  # Select first row where effect was detected
+    nFor2080_r = nFor2080_r[round(nFor2080_r$y, 2)>=0.3,]
+  # Put rich on at the end of nFor2080
+    nFor2080_r = rbind(nFor2080_r, rich)
+    
 # Select the first (minimum) sample size for each metric
 # for some reason I had trouble with multiple conditions,
-# so doing it separately here
-  nFor2080_r = nFor2080_r[(!duplicated(nFor2080_r$metric)),]
-  
+# so doing it separately here. 
+  # Select first N for each metric  
+    nFor2080_r = nFor2080_r[(!duplicated(nFor2080_r$metric)),]
+
 # Round sample sizes up because we can't take part
 # part of a sample and rounding down could result
 # in lower power than specified
@@ -666,30 +674,99 @@ dev.off()
   write.table(nFor2080_r, file='80pctCoords.csv',
               row.names=FALSE, quote=FALSE, sep=',')  
 
+# . Compare CV to statistical power at desired delta -----  
 # Do a regression of mean CV on the number of samples
 # required to detect 0.20
   means = plyr::ddply(CVs_Cat, 'variable', 
                       summarize, means=mean(CV))
   names(means)[1] ='metric'
   
+# Need to add the CV for Richness into this because
+# it was not included in the LMM analysis of CV
+  richCV = data.frame(metric='CRich', means=Sum_CVs$value[Sum_CVs$variable=='CRich_cv'])
+  means = rbind(means, richCV)
+  
 # Match up the mean CVs wtih the minimum sample size
   tester = merge(means, nFor2080_r)
 
-# Scatterplot- meh.
-  plot(x=tester$means,
-       y=tester$x)
+# Regression to check CV-power relationship
+# We log-transform to prevent inclusion of 
+# negative values in our prediction interval
+  powcv = lm(log(x)~means, data=tester)
+  summary(powcv)
   
-# Regression
-  summary(lm(means~x, data=tester))#$r.squared
-  
-  
-# Make presentation quality scatterplot with regression line (Figure 4)
+# Make presentation quality scatterplot w/ ggplot
+# with regression line (Figure 4)
   library(ggplot2)
   ggplot(tester, aes(x=means, y=x)) + geom_point() + geom_smooth(method = "lm", se = FALSE, col='black', size=0.75) +
     theme_bw() + ylim(0,15) + xlim(0.25, 0.45) + xlab("Metric Coefficient of Variation") + ylab("N to detect 30% change at POWER=80") +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
   ggsave("Figure4.jpg", dpi = 600, height = 4, width = 4) #to insert in paper
   ggsave("Figure4.eps", dpi = 600, height = 4, width = 4) #for journal submission
+  
+# Make plot with prediction intervals on log scale
+  # Make predictions from linear model
+  # and plot them against the simulation results
+    # Create new values for CV from range observed
+      newCV = data.frame(
+        means=seq(min(tester$means), max(tester$means), .001)
+        )
+      
+    # Make predictions from the model
+      pred = predict(powcv, newdata = newCV,
+                     interval = 'prediction')
+      
+    # Exponentiate predictions to get them
+    # back on the real scale
+      pred = apply(pred, 2, exp)
+  
+  # Plot the predictions  
+    # Set up an image file we can write to. Change to the type, pointsize,
+    # resolution, etc. that you are happy with and let it rip
+      tiff(filename = "Figure4.tif",
+        width = 2000, height = 2000, units = "px", pointsize = 6,
+        compression = "none",
+        res = 600)    
+      
+    # Set graphical parameters
+      par(mar = c(5,5,1,1))
+      
+    # Make a plot to set up the plotting
+    # window. Points are white, so they
+    # will not show up yet.
+      plot(x=tester$means, y=tester$x,
+           ylim=c(0,20), xlim=c(0.1, 0.45),
+           yaxt='n', pch=21, bg='white', col='white',
+           cex=2, xlab='Metric coefficient of variation',
+           ylab=expression(
+             paste('N to detect ', delta, ' = 0.30 | (1 - ',beta,') = 0.80',sep = '')
+           )
+      )
+      
+    # Add a polygon for the prediction interval
+      # Set up vertices for the polygon
+        xx = c(newCV$means, rev(newCV$means))
+        yy = c(pred[,2], rev(pred[,3]))
+      # Draw the polygon
+        polygon(xx, yy, col='gray87', border='gray87')
+    
+    # Add data points to the plot
+      points(x=tester$means, y=tester$x, pch=21, lwd=1, bg='black')
+      
+    # Add lines for the mean and 95% prediction intervals  
+      lines(x=newCV$means, y=pred[,1], lty=1, lwd=1, col='black')
+      lines(x=newCV$means, y=pred[,2], lty=2, lwd=1, col='black')
+      lines(x=newCV$means, y=pred[,3], lty=2, lwd=1, col='black')
+    
+    # Add y-axis ticks and labels
+      axis(side=2, las=2)
+      
+    # Add a dark box around the outside
+      box()
+      
+    # Close the graphics device
+      dev.off()
+  
   
   
   
