@@ -213,14 +213,21 @@ lapply(libraries, require, character.only = TRUE)
 # Reorder columns to produce a more interpretable graph
 # (and to compare to graph I made with original script to
 # see if new script had errors)  
- # Currently (4/3/18) not using since we added the new metrics - not sure we need it
+ # Currently (4/3/18) not using since 
+ # we added the new metrics - not sure we need it
   # CVshort <- CVshort_unorg[c(1, 2, 8, 3, 9, 4, 10, 5, 11, 6, 12, 7, 13, 14)]
   
 # . Data screening -----  
 # Restructure data to long form for 
 # graphing (put all data in one column)
   CVs <- reshape::melt(CVshort, id=c("Site"))
-  
+# Remove the _cv from variable names
+  # Store the names without _cv
+    foo <- gsub(unique(CVs$variable), pattern='_cv', replacement = '')
+  # Strip the _cv from values in the df
+    CVs$variable = gsub(CVs$variable, pattern='_cv', replacement = '')
+  # Re-cast as factor using original order  
+    CVs$variable = factor(CVs$variable, levels=foo)
 # Dump dataframe into xlsx file to designate metric classes manually.
   #write.xlsx(x = CVs, file = "CVs_4-3-18.xlsx", row.names = FALSE)
 
@@ -243,7 +250,6 @@ lapply(libraries, require, character.only = TRUE)
             ylab = "Coefficient of variation (CV) across 13 sites", las=2)  
     #add means from Sum_CVs dataframe
     points(Sum_CVs$value,col="black",pch=17)
-    
     
   # Boxplot showing CVs by site across metrics
     boxplot(value ~ Site,
