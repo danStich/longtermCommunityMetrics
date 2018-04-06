@@ -739,7 +739,7 @@ dev.off()
            yaxt='n', pch=21, bg='white', col='white',
            cex=2, xlab='Metric coefficient of variation',
            ylab=expression(
-             paste('N to detect ', delta, ' = 0.30 | (1 - ',beta,') = 0.80',sep = '')
+             paste('N to detect ', delta, ' = 0.30 | power = 0.80',sep = '')
            )
       )
       
