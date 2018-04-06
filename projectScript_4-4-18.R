@@ -649,7 +649,7 @@ dev.off()
 # the lowest N
   # Set N=1 aside for richness
     rich = nFor2080_r[nrow(nFor2080_r), ]
-  # Select first row where effect was detected
+  # Select rows where effect was detected
     nFor2080_r = nFor2080_r[round(nFor2080_r$y, 2)>=0.3,]
   # Put rich on at the end of nFor2080
     nFor2080_r = rbind(nFor2080_r, rich)
@@ -658,12 +658,12 @@ dev.off()
 # for some reason I had trouble with multiple conditions,
 # so doing it separately here. 
   # Select first N for each metric  
-    nFor2080_r = nFor2080_r[(!duplicated(nFor2080_r$metric)),]
+    nFor2080_r = nFor2080_r[(!duplicated(nFor2080_r$metric)), ]
 
 # Round sample sizes up because we can't take part
 # part of a sample and rounding down could result
 # in lower power than specified
-  nFor2080_r$x = ceiling_dec(nFor2080_r$x, 0)
+  nFor2080_r$x = ceiling_dec(nFor2080_r$x, 0.0001)
   
 # Replace values of 61 (or more) with NA because this just means
 # we reached max sample size without detecting effect.
