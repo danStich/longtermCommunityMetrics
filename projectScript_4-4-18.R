@@ -601,6 +601,9 @@ lapply(libraries, require, character.only = TRUE)
 dev.off()  
 
 # . Calculate necessary sample size for power by effect size -----
+# Load the simulation results if not already loaded
+  load('sim.res.rda')
+
 # Extract the x and y coordinates for power of 0.80
 # at effect size of interest
 
@@ -676,6 +679,8 @@ dev.off()
   nFor2080_r$x[nFor2080_r$x > 60] <- NA
   
 # Rename the first column of the dataframe  
+  names(nFor2080_r)[1] = 'variable'
+  
 # Save the output data to a csv  
   write.table(nFor2080_r, file='80pctCoords.csv',
               row.names=FALSE, quote=FALSE, sep=',')  
@@ -683,28 +688,24 @@ dev.off()
 # . Compare CV to statistical power at desired delta -----  
 # Do a regression of mean CV on the number of samples
 # required to detect 0.20
-  means = plyr::ddply(CVs_Cat, 'variable', 
-                      summarize, means=mean(CV))
-  names(means)[1] ='metric'
+
+# Match up the mean CVs with the minimum sample size
+# needed to detect effect of interest with power = 0.80
+  tester = merge(Sum_CVs, nFor2080_r)
   
-# Need to add the CV for Richness into this because
-# it was not included in the LMM analysis of CV
-  richCV = data.frame(metric='CRich', means=Sum_CVs$value[Sum_CVs$variable=='CRich_cv'])
-  means = rbind(means, richCV)
-  
-# Match up the mean CVs wtih the minimum sample size
-  tester = merge(means, nFor2080_r)
+# Rename the CV column
+  names(tester)[3] = 'CV'
 
 # Regression to check CV-power relationship
 # We log-transform to prevent inclusion of 
 # negative values in our prediction interval
-  powcv = lm(log(x)~means, data=tester)
+  powcv = lm(log(x)~CV, data=tester)
   summary(powcv)
   
 # Make presentation quality scatterplot w/ ggplot
 # with regression line (Figure 4)
   library(ggplot2)
-  ggplot(tester, aes(x=means, y=x)) + geom_point() + geom_smooth(method = "lm", se = FALSE, col='black', size=0.75) +
+  ggplot(tester, aes(x=CV, y=x)) + geom_point() + geom_smooth(method = "lm", se = FALSE, col='black', size=0.75) +
     theme_bw() + ylim(0,15) + xlim(0.25, 0.45) + xlab("Metric Coefficient of Variation") + ylab("N to detect 30% change at POWER=80") +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
   ggsave("Figure4.jpg", dpi = 600, height = 4, width = 4) #to insert in paper
@@ -715,7 +716,7 @@ dev.off()
   # and plot them against the simulation results
     # Create new values for CV from range observed
       newCV = data.frame(
-        means=seq(min(tester$means), max(tester$means), .001)
+        CV=seq(min(tester$CV), max(tester$CV), .001)
         )
       
     # Make predictions from the model
@@ -740,7 +741,7 @@ dev.off()
     # Make a plot to set up the plotting
     # window. Points are white, so they
     # will not show up yet.
-      plot(x=tester$means, y=tester$x,
+      plot(x=tester$CV, y=tester$x,
            ylim=c(0,20), xlim=c(0.1, 0.45),
            yaxt='n', pch=21, bg='white', col='white',
            cex=2, xlab='Metric coefficient of variation',
@@ -751,18 +752,18 @@ dev.off()
       
     # Add a polygon for the prediction interval
       # Set up vertices for the polygon
-        xx = c(newCV$means, rev(newCV$means))
+        xx = c(newCV$CV, rev(newCV$CV))
         yy = c(pred[,2], rev(pred[,3]))
       # Draw the polygon
         polygon(xx, yy, col='gray87', border='gray87')
     
     # Add data points to the plot
-      points(x=tester$means, y=tester$x, pch=21, lwd=1, bg='black')
+      points(x=tester$CV, y=tester$x, pch=21, lwd=1, bg='black')
       
     # Add lines for the mean and 95% prediction intervals  
-      lines(x=newCV$means, y=pred[,1], lty=1, lwd=1, col='black')
-      lines(x=newCV$means, y=pred[,2], lty=2, lwd=1, col='black')
-      lines(x=newCV$means, y=pred[,3], lty=2, lwd=1, col='black')
+      lines(x=newCV$CV, y=pred[,1], lty=1, lwd=1, col='black')
+      lines(x=newCV$CV, y=pred[,2], lty=2, lwd=1, col='black')
+      lines(x=newCV$CV, y=pred[,3], lty=2, lwd=1, col='black')
     
     # Add y-axis ticks and labels
       axis(side=2, las=2)
